@@ -1,18 +1,18 @@
 # Terrence Creig
 # IT 140 Project Two - Haunted House Escape
-# Collect six items before entering the Attic to escape the Ghost.
+# Rooms and items follow the original Project One game_map.drawio.
 
 
 def show_instructions():
-    """Explain the objective and available commands."""
+    """Explain the goal and commands."""
     print('Haunted House Escape')
-    print('Collect all 6 items before entering the Attic!')
-    print('Move: go north, go south, go east, go west')
-    print('Collect: get item name (example: get flashlight)')
+    print('Collect all six items before entering the Attic!')
+    print('Commands: go north, go south, go east, go west')
+    print('To collect an item: get item name (example: get flashlight)')
 
 
 def show_status(current_room, inventory, rooms):
-    """Display the player's current location and collected items."""
+    """Display current location, inventory, and available item."""
     print('\nYou are in the', current_room)
     print('Inventory:', inventory)
     if 'item' in rooms[current_room]:
@@ -22,44 +22,40 @@ def show_status(current_room, inventory, rooms):
 
 def main():
     """Run the game until the player wins or loses."""
-    # Rooms and items follow the Project One storyboard.
-    # Connections form a safe path to all six items before the Attic.
     rooms = {
-        'Living Room': {'east': 'Kitchen', 'north': 'Bedroom'},
-        'Kitchen': {'west': 'Living Room', 'item': 'Flashlight'},
-        'Bedroom': {'south': 'Living Room', 'east': 'Bathroom', 'item': 'Key'},
-        'Bathroom': {'west': 'Bedroom', 'north': 'Garage', 'item': 'Map'},
-        'Garage': {'south': 'Bathroom', 'east': 'Basement', 'item': 'Rope'},
-        'Basement': {'west': 'Garage', 'north': 'Study', 'item': 'Battery'},
-        'Study': {'south': 'Basement', 'east': 'Attic', 'item': 'Crowbar'},
-        'Attic': {'west': 'Study'}
+        'Foyer': {'west': 'Kitchen', 'north': 'Attic'},
+        'Kitchen': {'east': 'Foyer', 'north': 'Bedroom', 'item': 'Flashlight'},
+        'Bedroom': {'south': 'Kitchen', 'north': 'Bathroom', 'east': 'Attic', 'item': 'Key'},
+        'Bathroom': {'south': 'Bedroom', 'east': 'Library', 'item': 'Candle'},
+        'Library': {'west': 'Bathroom', 'east': 'Basement', 'south': 'Attic', 'item': 'Book'},
+        'Basement': {'west': 'Library', 'south': 'Garage', 'item': 'Rope'},
+        'Garage': {'north': 'Basement', 'west': 'Attic', 'item': 'Crowbar'},
+        'Attic': {'south': 'Foyer', 'west': 'Bedroom', 'north': 'Library', 'east': 'Garage'}
     }
-    current_room = 'Living Room'
+    current_room = 'Foyer'
     inventory = []
-    required_items = 6
     show_instructions()
 
     while True:
         show_status(current_room, inventory, rooms)
         command = input('Enter your move: ').strip().lower()
-
         if command.startswith('go '):
             direction = command[3:].strip()
-            if direction in rooms[current_room]:
+            if direction in ('north', 'south', 'east', 'west') and direction in rooms[current_room]:
                 current_room = rooms[current_room][direction]
                 if current_room == 'Attic':
-                    if len(inventory) == required_items:
+                    if len(inventory) == 6:
                         print('Congratulations! You collected all six items and escaped the Ghost!')
                     else:
-                        print('NOM NOM...GAME OVER! The Ghost caught you!')
+                        print('GAME OVER! The Ghost caught you!')
                     print('Thanks for playing Haunted House Escape!')
                     break
             else:
                 print('You cannot go that way!')
         elif command.startswith('get '):
-            item_name = command[4:].strip()
+            requested_item = command[4:].strip()
             room_item = rooms[current_room].get('item')
-            if room_item and item_name == room_item.lower():
+            if room_item is not None and requested_item == room_item.lower():
                 inventory.append(room_item)
                 del rooms[current_room]['item']
                 print(room_item, 'added to your inventory!')
